@@ -13,12 +13,12 @@ class Stats
         @stats[:uri] = env["PATH_INFO"]
         @stats[:http_method] = env["REQUEST_METHOD"]
         
+        status, headers, body = @app.call(env)
+        
         if env["rack.routing_args"]
           @stats[:controller_name] = env["rack.routing_args"]["controller"]
           @stats[:action_name] = env["rack.routing_args"]["action"]
         end
-
-        status, headers, body = @app.call(env)
         @stats[:response_code] = status
       end
       
