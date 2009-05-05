@@ -30,11 +30,14 @@ describe Stats do
     end
 
     it "stores a transaction id" do
+      now = Time.now
+      Time.stub!(:now => now)
+      ActiveSupport::SecureRandom.stub!(:hex => "abcd")
       $stats.transaction do
         # Nothing
       end
       
-      $log.should have_value(:transaction, "1234")
+      $log.should have_value(:transaction, "#{now.to_i}-abcd")
     end
 
     it "stores the date" do

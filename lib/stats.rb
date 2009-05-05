@@ -29,7 +29,7 @@ class Stats
   end
 
   def transaction(&block)
-    self[:transaction] = "1234"
+    self[:transaction] = generate_transaction_id
     self[:date] = Time.now.utc.strftime("%F")
     self[:time] = Time.now.utc.strftime("%T")
     begin_memory = MemoryUsage.kilobytes
@@ -81,4 +81,9 @@ protected
       @values[field] ? @values[field] : "-"
     end.join(" ")
   end
+  
+  def generate_transaction_id
+    "#{Time.now.to_i}-#{ActiveSupport::SecureRandom.hex(10)}"
+  end
+  
 end
