@@ -153,28 +153,6 @@ describe Stats do
     end
   end
 
-  describe "memory usage" do
-    before do
-      $stats = Stats.new([:memory, :memory_delta], $log)
-    end
-
-    it "stores the process memory size change in KB" do
-      Stats::MemoryUsage.stub!(:kilobytes => 16_121)
-      $stats.transaction do
-        # Nothing
-      end
-      $log.should have_value(:memory, "16121")
-    end
-
-    it "stores the process memory size in KB" do
-      Stats::MemoryUsage.stub!(:kilobytes).and_return(16_121, 16_021)
-      $stats.transaction do
-        # Nothing
-      end
-      $log.should have_value(:memory_delta, "-100")
-    end
-  end
-
   describe "multiple stats objects" do
     before do
       $main_log = DummyLogger.new

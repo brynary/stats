@@ -52,13 +52,9 @@ class Stats
     self[:transaction] = generate_transaction_id
     self[:date] = Date.new(Time.now.utc.year, Time.now.utc.month, Time.now.utc.day)
     self[:time] = Time.now.utc
-    begin_memory = MemoryUsage.kilobytes
     Stats.push(self)
     measure(&block)
     Stats.pop
-    end_memory = MemoryUsage.kilobytes
-    self[:memory] = end_memory
-    self[:memory_delta] = end_memory - begin_memory
     @logger.info log_line
     @values = {}
   end
