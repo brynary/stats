@@ -174,4 +174,37 @@ describe Stats do
       $log.should have_value(:memory_delta, "-100")
     end
   end
+
+  describe "multiple stats objects" do
+    before do
+      $main_log = DummyLogger.new
+      $main_stats = Stats.new([:custom_field], $main_log)
+
+      $other_log = DummyLogger.new
+      $other_stats = Stats.new([:custom_field], $other_log)
+    end
+
+    it "sends values to both stats with open transactions" do
+      $main_stats.transaction do
+        $other_stats.transaction do
+          Stats.broadcaster[:custom_field] = "10"
+
+          $other_stats[:custom_field].should == "10"
+          $main_stats[:custom_field].should == "10"
+        end
+      end
+    end
+
+    it "doesn't send values to a stats object not in a transaction" do
+      $main_stats.transaction do
+        $other_stats.transaction do
+        end
+
+        Stats.broadcaster[:custom_field] = "10"
+
+        $other_stats[:custom_field].should be_nil
+        $main_stats[:custom_field].should == "10"
+      end
+    end
+  end
 end

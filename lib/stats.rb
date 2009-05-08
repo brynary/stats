@@ -1,11 +1,31 @@
 require "stats/middleware"
 require "stats/memory_usage"
+require "stats/measure"
+require "stats/broadcaster"
 require "stats/rails/sql_extensions"
 require "stats/rails/active_record_extensions"
 require "stats/rails/cache_extensions"
 require "benchmark"
 
 class Stats
+  include Measure
+
+  def self.broadcaster
+    Broadcaster.new(active_stats)
+  end
+
+  def self.push(stats)
+    active_stats.push(stats)
+  end
+
+  def self.pop
+    active_stats.pop
+  end
+
+  def self.active_stats
+    @active_stats ||= []
+  end
+
   def initialize(fields, logger)
     @values = {}
     @logger = logger
@@ -33,7 +53,9 @@ class Stats
     self[:date] = Date.new(Time.now.utc.year, Time.now.utc.month, Time.now.utc.day)
     self[:time] = Time.now.utc
     begin_memory = MemoryUsage.kilobytes
+    Stats.push(self)
     measure(&block)
+    Stats.pop
     end_memory = MemoryUsage.kilobytes
     self[:memory] = end_memory
     self[:memory_delta] = end_memory - begin_memory
@@ -48,6 +70,12 @@ class Stats
       result = block.call
     end
 
+    add_time(prefix, tms)
+
+    return result
+  end
+
+  def add_time(prefix, tms)
     prefix = prefix.to_s + "_" if prefix
 
     self[prefix.to_s + "usr_time"] ||= 0.0
@@ -58,8 +86,6 @@ class Stats
 
     self[prefix.to_s + "real_time"]   ||= 0.0
     self[prefix.to_s + "real_time"] += tms.real * 1_000
-
-    return result
   end
 
 protected
