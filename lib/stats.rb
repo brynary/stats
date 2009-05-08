@@ -30,8 +30,8 @@ class Stats
 
   def transaction(&block)
     self[:transaction] = generate_transaction_id
-    self[:date] = Time.now.utc.strftime("%F")
-    self[:time] = Time.now.utc.strftime("%T")
+    self[:date] = Date.new(Time.now.utc.year, Time.now.utc.month, Time.now.utc.day)
+    self[:time] = Time.now.utc
     begin_memory = MemoryUsage.kilobytes
     measure(&block)
     end_memory = MemoryUsage.kilobytes
@@ -43,7 +43,7 @@ class Stats
 
   def measure(prefix = nil, &block)
     result = nil
-    
+
     tms = Benchmark.measure do
       result = block.call
     end
@@ -55,10 +55,10 @@ class Stats
 
     self[prefix.to_s + "sys_time"]   ||= 0.0
     self[prefix.to_s + "sys_time"] += tms.stime * 1_000
-    
+
     self[prefix.to_s + "real_time"]   ||= 0.0
     self[prefix.to_s + "real_time"] += tms.real * 1_000
-    
+
     return result
   end
 
@@ -77,13 +77,37 @@ protected
   end
 
   def log_line
+    old_line
+  end
+
+  def old_line
     @fields.map do |field|
-      @values[field] ? @values[field] : "-"
+      format_value(@values[field])
     end.join(" ")
   end
-  
+
   def generate_transaction_id
     "#{Time.now.to_i}-#{ActiveSupport::SecureRandom.hex(10)}"
   end
-  
+
+  def format_value(value)
+    case value
+    when nil
+      "-"
+    when Float
+      "%.2f" % value
+    when Time
+      value.strftime("%T")
+    when String
+      quote(value)
+    else
+      value.to_s
+    end
+  end
+
+  def quote(value)
+    '"'                               +
+    String(value).gsub('"', '"' * 2)  +
+    '"'
+  end
 end

@@ -76,7 +76,7 @@ describe Stats, "for Rails" do
         connection.log("SELECT 1", "")
       end
 
-      $log.should have_value(:sql_usr_time, "1000.0")
+      $log.should have_value(:sql_usr_time, "1000.00")
     end
 
     it "stores the system CPU time" do
@@ -87,7 +87,7 @@ describe Stats, "for Rails" do
         connection.log("SELECT 1", "")
       end
 
-      $log.should have_value(:sql_sys_time, "1000.0")
+      $log.should have_value(:sql_sys_time, "1000.00")
     end
 
     it "stores the real time" do
@@ -98,7 +98,7 @@ describe Stats, "for Rails" do
         connection.log("SELECT 1", "")
       end
 
-      $log.should have_value(:sql_real_time, "1000.0")
+      $log.should have_value(:sql_real_time, "1000.00")
     end
   end
 
@@ -157,7 +157,7 @@ describe Stats, "for Rails" do
         memcached.get "key"
       end
 
-      $log.should have_value(:memcache_usr_time, "1000.0")
+      $log.should have_value(:memcache_usr_time, "1000.00")
     end
 
     it "stores the system CPU time" do
@@ -169,7 +169,7 @@ describe Stats, "for Rails" do
         memcached.increment "key"
       end
 
-      $log.should have_value(:memcache_sys_time, "1000.0")
+      $log.should have_value(:memcache_sys_time, "1000.00")
     end
 
     it "stores the real time" do
@@ -181,7 +181,7 @@ describe Stats, "for Rails" do
         memcached.increment "key"
       end
 
-      $log.should have_value(:memcache_real_time, "1000.0")
+      $log.should have_value(:memcache_real_time, "1000.00")
     end
   end
 

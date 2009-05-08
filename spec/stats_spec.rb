@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require "time"
 
 describe Stats do
-  
+
   describe "logging headers" do
     it "records the field list" do
       Stats.new([:user_id], $log)
@@ -26,7 +26,7 @@ describe Stats do
 
   describe "logging stats" do
     before do
-      $stats = Stats.new(%w[user_id], $log)
+      $stats = Stats.new(%w[custom_field], $log)
     end
 
     it "stores a transaction id" do
@@ -36,7 +36,7 @@ describe Stats do
       $stats.transaction do
         # Nothing
       end
-      
+
       $log.should have_value(:transaction, "#{now.to_i}-abcd")
     end
 
@@ -45,7 +45,7 @@ describe Stats do
         $stats.transaction do
           # Nothing
         end
-        
+
         $log.should have_value(:date, "2009-01-04")
       end
     end
@@ -55,7 +55,7 @@ describe Stats do
         $stats.transaction do
           # Nothing
         end
-        
+
         $log.should have_value(:time, "11:22:33")
       end
     end
@@ -65,40 +65,64 @@ describe Stats do
         $stats.transaction do
           # Nothing
         end
-        
+
         $log.should have_value(:time, "14:22:33")
       end
     end
 
-    it "stores additional provided values" do
+    it "stores additional provided integer values" do
       $stats.transaction do
-        $stats[:user_id] = 10
+        $stats[:custom_field] = 10
       end
-      
-      $log.should have_value(:user_id, "10")
+
+      $log.should have_value(:custom_field, "10")
+    end
+
+    it "stores additional provided float values with two decimal places" do
+      $stats.transaction do
+        $stats[:custom_field] = 10.123123213
+      end
+
+      $log.should have_value(:custom_field, "10.12")
+    end
+
+    it "stores additional provided string values with quotes" do
+      $stats.transaction do
+        $stats[:custom_field] = "foo bar"
+      end
+
+      $log.should have_value(:custom_field, "foo bar")
+    end
+
+    it "escapes quotes in strings" do
+      $stats.transaction do
+        $stats[:custom_field] = "foo\" bar"
+      end
+
+      $log.should have_value(:custom_field, "foo\" bar")
     end
 
     it "clears values between transactions" do
       $stats.transaction do
-        $stats[:user_id] = 10
+        $stats[:custom_field] = 10
       end
 
       $stats.transaction do
         # Nothing
       end
-      
-      $log.should have_value(:user_id, "-")
+
+      $log.should have_value(:custom_field, "-")
     end
 
     it "logs dashes for missing values" do
       $stats.transaction do
         # Nothing
       end
-      
-      $log.should have_value(:user_id, "-")
+
+      $log.should have_value(:custom_field, "-")
     end
   end
-  
+
   describe "resource usage" do
     before do
       $stats = Stats.new([], $log)
@@ -109,7 +133,7 @@ describe Stats do
       $stats.transaction do
         # Nothing
       end
-      $log.should have_value(:usr_time, "500.0")
+      $log.should have_value(:usr_time, "500.00")
     end
 
     it "stores the system CPU time" do
@@ -117,7 +141,7 @@ describe Stats do
       $stats.transaction do
         # Nothing
       end
-      $log.should have_value(:sys_time, "500.0")
+      $log.should have_value(:sys_time, "500.00")
     end
 
     it "stores the total wall time" do
@@ -125,7 +149,7 @@ describe Stats do
       $stats.transaction do
         # Nothing
       end
-      $log.should have_value(:real_time, "500.0")
+      $log.should have_value(:real_time, "500.00")
     end
   end
 
