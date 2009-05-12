@@ -63,27 +63,26 @@ if defined?(Memcached)
           get_without_stats_log(keys, marshal)
         end
         
-        results.each do |result|
-          if result.nil?
-            Stats.broadcaster.incr(:memcache_misses)
-          else
+        keys.each do |key|
+          if results.has_key?(key)
             Stats.broadcaster.incr(:memcache_hits)
+          else
+            Stats.broadcaster.incr(:memcache_misses)
           end
         end
         
         return results
       else
-        result = Stats.broadcaster.measure(:memcache) do
-          get_without_stats_log(keys, marshal)
-        end
-        
-        if result.nil?
-          Stats.broadcaster.incr(:memcache_misses)
-        else
+        begin
+          result = Stats.broadcaster.measure(:memcache) do
+            get_without_stats_log(keys, marshal)
+          end
           Stats.broadcaster.incr(:memcache_hits)
+          return result
+        rescue Memcached::NotFound => ex
+          Stats.broadcaster.incr(:memcache_misses)
+          raise
         end
-        
-        return result
       end
     end
 

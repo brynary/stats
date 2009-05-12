@@ -26,4 +26,8 @@ class Memcached
   
   def get(keys, marshal=true)
   end
+
+  class NotFound < StandardError
+  end
+
 end

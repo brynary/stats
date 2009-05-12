@@ -110,7 +110,7 @@ describe Stats, "for Rails" do
     it "stores the hits count" do
       $stats.transaction do
         memcached = Memcached.new
-        memcached.stub!(:get_without_stats_log).and_return("1", ["2", "3"])
+        memcached.stub!(:get_without_stats_log).and_return("1", { "key2" => "2", "key3" => "3" })
         memcached.get "key1"
         memcached.get ["key2", "key3"]
       end
@@ -119,15 +119,28 @@ describe Stats, "for Rails" do
       $log.should have_value(:memcache_misses, "-")
     end
 
-    it "stores the misses count" do
+    it "stores the misses count for single gets" do
       $stats.transaction do
         memcached = Memcached.new
-        memcached.stub!(:get_without_stats_log).and_return(nil, [nil, nil])
-        memcached.get "key1"
+        memcached.stub!(:get_without_stats_log).and_raise(Memcached::NotFound)
+        
+        lambda do
+          memcached.get "key1"
+        end.should raise_error(Memcached::NotFound)
+      end
+
+      $log.should have_value(:memcache_misses, "1")
+      $log.should have_value(:memcache_hits, "-")
+    end
+
+    it "stores the misses count for multigets" do
+      $stats.transaction do
+        memcached = Memcached.new
+        memcached.stub!(:get_without_stats_log => {})
         memcached.get ["key2", "key3"]
       end
 
-      $log.should have_value(:memcache_misses, "3")
+      $log.should have_value(:memcache_misses, "2")
       $log.should have_value(:memcache_hits, "-")
     end
 
