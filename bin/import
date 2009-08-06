@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+require "rubygems"
+require "sequel"
+
+# require "optparse"
+# options = {}
+# OptionParser.new do |opts|
+#   opts.on("--min PRIORITY", "Only run jobs with a min priority") do |priority|
+#     options[:min] = priority.to_i
+#   end
+# end.parse!
+
+def column_type(field, sample_value)
+  case field
+  when "date" then "DATE"
+  when "time" then "TIME"
+  else
+    if sample_value[0..0] == '"'
+      "VARCHAR(255)"
+    elsif sample_value =~ /\./
+      "FLOAT"
+    else
+      "INTEGER"
+    end
+  end
+end
+
+DB = Sequel.mysql(:database => "stats")
+# DB << "DROP TABLE IF EXISTS items"
+
+lines     = File.read(ARGV.last).split("\n")
+fields    = lines.grep(/^# Fields: /).first.gsub(/^# Fields: /, "").split(" ")
+rows      = lines.grep(/^[^#]/).map { |line| line.split(" ") }
+
+# DB.create_table :items do
+#   primary_key :transaction, :varchar, :auto_increment => false
+# 
+#   fields.each do |field|
+#     next if field.to_s == "transaction"
+#     column field.to_sym, column_type(field, rows.last[fields.index(field)])
+#   end
+# end
+
+rows.each do |row|
+  hash = {}
+  fields.each_with_index do |field, i|
+    hash[field] = row[i]
+  end
+  DB[:items].insert(hash)
+end
