@@ -15,7 +15,7 @@ describe Oink, "for Rails" do
 
   describe "HTTP" do
     before do
-      $stats = Oink::Stats.new([:uri, :http_method, :response_code], $log)
+      $stats = Oink::Log.new([:uri, :http_method, :response_code], $log)
     end
 
     it "stores the URI" do
@@ -36,7 +36,7 @@ describe Oink, "for Rails" do
 
   describe "routing" do
     before do
-      $stats = Oink::Stats.new([:controller_name, :action_name], $log)
+      $stats = Oink::Log.new([:controller_name, :action_name], $log)
     end
 
     it "stores the controller name" do
@@ -52,7 +52,7 @@ describe Oink, "for Rails" do
 
   describe "SQL" do
     before do
-      $stats = Oink::Stats.new([:sql_queries, :sql_usr_time, :sql_sys_time, :sql_real_time], $log)
+      $stats = Oink::Log.new([:sql_queries, :sql_usr_time, :sql_sys_time, :sql_real_time], $log)
     end
 
     def connection
@@ -104,7 +104,7 @@ describe Oink, "for Rails" do
 
   describe "Memcached" do
     before do
-      $stats = Oink::Stats.new([:memcache_writes, :memcache_misses, :memcache_hits, :memcache_usr_time, :memcache_sys_time, :memcache_real_time], $log)
+      $stats = Oink::Log.new([:memcache_writes, :memcache_misses, :memcache_hits, :memcache_usr_time, :memcache_sys_time, :memcache_real_time], $log)
     end
 
     it "stores the hits count" do
@@ -200,7 +200,7 @@ describe Oink, "for Rails" do
 
   describe "ActiveRecord" do
     before do
-      $stats = Oink::Stats.new([:active_record_instances], $log)
+      $stats = Oink::Log.new([:active_record_instances], $log)
     end
 
     it "stores the number of instantiated AR objects" do

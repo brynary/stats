@@ -4,20 +4,20 @@ require "time"
 describe Oink do
   describe "logging headers" do
     it "records the field list" do
-      Oink::Stats.new([:user_id], $log)
+      Oink::Log.new([:user_id], $log)
       $log.should have_directive("Fields", "transaction date time usr_time sys_time real_time user_id")
     end
 
     it "records the start date" do
       Time.freeze(Time.parse("2009-01-04 11:22:33 -0000")) do
-        Oink::Stats.new([:user_id], $log)
+        Oink::Log.new([:user_id], $log)
         $log.should have_directive("Start-Date", "2009-01-04 11:22:33")
       end
     end
 
     it "records the start date as UTC" do
       Time.freeze(Time.parse("2009-01-04 11:22:33 -0300")) do
-        Oink::Stats.new([:user_id], $log)
+        Oink::Log.new([:user_id], $log)
         $log.should have_directive("Start-Date", "2009-01-04 14:22:33")
       end
     end
@@ -25,7 +25,7 @@ describe Oink do
 
   describe "logging stats" do
     before do
-      $stats = Oink::Stats.new(%w[custom_field], $log)
+      $stats = Oink::Log.new(%w[custom_field], $log)
     end
 
     it "stores a transaction id" do
@@ -124,7 +124,7 @@ describe Oink do
 
   describe "resource usage" do
     before do
-      $stats = Oink::Stats.new([], $log)
+      $stats = Oink::Log.new([], $log)
     end
 
     it "stores the user CPU time" do
@@ -155,10 +155,10 @@ describe Oink do
   describe "multiple stats objects" do
     before do
       $main_log = DummyLogger.new
-      $main_stats = Oink::Stats.new([:custom_field], $main_log)
+      $main_stats = Oink::Log.new([:custom_field], $main_log)
 
       $other_log = DummyLogger.new
-      $other_stats = Oink::Stats.new([:custom_field], $other_log)
+      $other_stats = Oink::Log.new([:custom_field], $other_log)
     end
 
     it "sends values to both stats with open transactions" do
