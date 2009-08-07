@@ -1,4 +1,4 @@
-class Stats
+module Oink
 
   class Broadcaster
     instance_methods.each { |m| undef_method m unless m =~ /^__/ }

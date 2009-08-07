@@ -1,4 +1,4 @@
-class Stats
+module Oink
   module Measure
     def measure(prefix = nil, &block)
       result = nil

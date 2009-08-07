@@ -1,4 +1,4 @@
-class Stats
+module Oink
   class MemoryUsage
     def self.kilobytes
       `ps -o rss= -p #{$$}`.to_i

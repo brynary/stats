@@ -1,24 +1,23 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require "time"
 
-describe Stats do
-
+describe Oink do
   describe "logging headers" do
     it "records the field list" do
-      Stats.new([:user_id], $log)
+      Oink::Stats.new([:user_id], $log)
       $log.should have_directive("Fields", "transaction date time usr_time sys_time real_time user_id")
     end
 
     it "records the start date" do
       Time.freeze(Time.parse("2009-01-04 11:22:33 -0000")) do
-        Stats.new([:user_id], $log)
+        Oink::Stats.new([:user_id], $log)
         $log.should have_directive("Start-Date", "2009-01-04 11:22:33")
       end
     end
 
     it "records the start date as UTC" do
       Time.freeze(Time.parse("2009-01-04 11:22:33 -0300")) do
-        Stats.new([:user_id], $log)
+        Oink::Stats.new([:user_id], $log)
         $log.should have_directive("Start-Date", "2009-01-04 14:22:33")
       end
     end
@@ -26,7 +25,7 @@ describe Stats do
 
   describe "logging stats" do
     before do
-      $stats = Stats.new(%w[custom_field], $log)
+      $stats = Oink::Stats.new(%w[custom_field], $log)
     end
 
     it "stores a transaction id" do
@@ -125,7 +124,7 @@ describe Stats do
 
   describe "resource usage" do
     before do
-      $stats = Stats.new([], $log)
+      $stats = Oink::Stats.new([], $log)
     end
 
     it "stores the user CPU time" do
@@ -156,16 +155,16 @@ describe Stats do
   describe "multiple stats objects" do
     before do
       $main_log = DummyLogger.new
-      $main_stats = Stats.new([:custom_field], $main_log)
+      $main_stats = Oink::Stats.new([:custom_field], $main_log)
 
       $other_log = DummyLogger.new
-      $other_stats = Stats.new([:custom_field], $other_log)
+      $other_stats = Oink::Stats.new([:custom_field], $other_log)
     end
 
     it "sends values to both stats with open transactions" do
       $main_stats.transaction do
         $other_stats.transaction do
-          Stats.broadcaster[:custom_field] = "10"
+          Oink::Stats.broadcaster[:custom_field] = "10"
 
           $other_stats[:custom_field].should == "10"
           $main_stats[:custom_field].should == "10"
@@ -178,7 +177,7 @@ describe Stats do
         $other_stats.transaction do
         end
 
-        Stats.broadcaster[:custom_field] = "10"
+        Oink::Stats.broadcaster[:custom_field] = "10"
 
         $other_stats[:custom_field].should be_nil
         $main_stats[:custom_field].should == "10"

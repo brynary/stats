@@ -1,4 +1,4 @@
-class Stats
+module Oink
   class Middleware
 
     def initialize(app, stats)

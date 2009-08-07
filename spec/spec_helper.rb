@@ -7,7 +7,7 @@ require File.dirname(File.dirname(__FILE__)) + '/spec/fixtures/abstract_adapter'
 require File.dirname(File.dirname(__FILE__)) + '/spec/fixtures/active_record'
 
 $LOAD_PATH.unshift File.dirname(File.dirname(__FILE__)) + '/lib'
-require "stats"
+require "oink"
 require "rack/test"
 require "fastercsv"
 
