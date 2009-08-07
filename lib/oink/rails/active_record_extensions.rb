@@ -3,14 +3,14 @@ if defined?(ActiveRecord)
 
     if instance_methods.include?("after_initialize")
       def after_initialize_with_stats_log
-        Oink::Stats.broadcaster.incr(:active_record_instances)
+        Oink.broadcaster.incr(:active_record_instances)
         after_initialize_without_stats_log
       end
     
       alias_method_chain :after_initialize, :stats_log
     else
       def after_initialize
-        Oink::Stats.broadcaster.incr(:active_record_instances)
+        Oink.broadcaster.incr(:active_record_instances)
       end
     end
     

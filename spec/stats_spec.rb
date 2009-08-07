@@ -164,7 +164,7 @@ describe Oink do
     it "sends values to both stats with open transactions" do
       $main_stats.transaction do
         $other_stats.transaction do
-          Oink::Stats.broadcaster[:custom_field] = "10"
+          Oink.broadcaster[:custom_field] = "10"
 
           $other_stats[:custom_field].should == "10"
           $main_stats[:custom_field].should == "10"
@@ -177,7 +177,7 @@ describe Oink do
         $other_stats.transaction do
         end
 
-        Oink::Stats.broadcaster[:custom_field] = "10"
+        Oink.broadcaster[:custom_field] = "10"
 
         $other_stats[:custom_field].should be_nil
         $main_stats[:custom_field].should == "10"

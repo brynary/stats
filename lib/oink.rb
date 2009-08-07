@@ -10,24 +10,13 @@ require "oink/rails/cache_extensions"
 require "oink/log"
 
 module Oink
-  class Stats
-    include Measure
 
-    def self.broadcaster
-      Broadcaster.new(active_stats)
-    end
-
-    def self.push(stats)
-      active_stats.push(stats)
-    end
-
-    def self.pop
-      active_stats.pop
-    end
-
-    def self.active_stats
-      @active_stats ||= []
-    end
-
+  def self.broadcaster
+    Broadcaster.new(active_logs)
   end
+
+  def self.active_logs
+    @@active_logs ||= []
+  end
+
 end

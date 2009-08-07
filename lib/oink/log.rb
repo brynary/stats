@@ -1,5 +1,6 @@
 module Oink
   class Log
+    include Measure
 
     def initialize(fields, logger)
       @values = {}
@@ -27,9 +28,9 @@ module Oink
       self[:transaction] = generate_transaction_id
       self[:date] = Date.new(Time.now.utc.year, Time.now.utc.month, Time.now.utc.day)
       self[:time] = Time.now.utc
-      Stats.push(self)
+      Oink.active_logs.push(self)
       measure(&block)
-      Stats.pop
+      Oink.active_logs.pop
       @logger.info log_line
       @values = {}
     end
