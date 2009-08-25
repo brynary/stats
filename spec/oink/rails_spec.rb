@@ -15,7 +15,7 @@ describe Oink, "for Rails" do
 
   describe "HTTP" do
     before do
-      $stats = Oink::Log.new([:uri, :http_method, :response_code], $log)
+      $stats = Oink::Log.new($log, [:uri, :http_method, :response_code])
     end
 
     it "stores the URI" do
@@ -36,7 +36,7 @@ describe Oink, "for Rails" do
 
   describe "routing" do
     before do
-      $stats = Oink::Log.new([:controller_name, :action_name], $log)
+      $stats = Oink::Log.new($log, [:controller_name, :action_name])
     end
 
     it "stores the controller name" do
@@ -52,7 +52,7 @@ describe Oink, "for Rails" do
 
   describe "SQL" do
     before do
-      $stats = Oink::Log.new([:sql_queries, :sql_usr_time, :sql_sys_time, :sql_real_time], $log)
+      $stats = Oink::Log.new($log)
     end
 
     def connection
@@ -76,7 +76,7 @@ describe Oink, "for Rails" do
         connection.log("SELECT 1", "")
       end
 
-      $log.should have_value(:sql_usr_time, "1000.00")
+      $log.should have_value(:sql_usr_time, "1000")
     end
 
     it "stores the system CPU time" do
@@ -87,7 +87,7 @@ describe Oink, "for Rails" do
         connection.log("SELECT 1", "")
       end
 
-      $log.should have_value(:sql_sys_time, "1000.00")
+      $log.should have_value(:sql_sys_time, "1000")
     end
 
     it "stores the real time" do
@@ -98,13 +98,13 @@ describe Oink, "for Rails" do
         connection.log("SELECT 1", "")
       end
 
-      $log.should have_value(:sql_real_time, "1000.00")
+      $log.should have_value(:sql_real_time, "1000")
     end
   end
 
   describe "Memcached" do
     before do
-      $stats = Oink::Log.new([:memcache_writes, :memcache_misses, :memcache_hits, :memcache_usr_time, :memcache_sys_time, :memcache_real_time], $log)
+      $stats = Oink::Log.new($log)
     end
 
     it "stores the hits count" do
@@ -123,7 +123,7 @@ describe Oink, "for Rails" do
       $stats.transaction do
         memcached = Memcached.new
         memcached.stub!(:get_without_stats_log).and_raise(Memcached::NotFound)
-        
+
         lambda do
           memcached.get "key1"
         end.should raise_error(Memcached::NotFound)
@@ -170,7 +170,7 @@ describe Oink, "for Rails" do
         memcached.get "key"
       end
 
-      $log.should have_value(:memcache_usr_time, "1000.00")
+      $log.should have_value(:memcache_usr_time, "1000")
     end
 
     it "stores the system CPU time" do
@@ -182,7 +182,7 @@ describe Oink, "for Rails" do
         memcached.increment "key"
       end
 
-      $log.should have_value(:memcache_sys_time, "1000.00")
+      $log.should have_value(:memcache_sys_time, "1000")
     end
 
     it "stores the real time" do
@@ -194,13 +194,13 @@ describe Oink, "for Rails" do
         memcached.increment "key"
       end
 
-      $log.should have_value(:memcache_real_time, "1000.00")
+      $log.should have_value(:memcache_real_time, "1000")
     end
   end
 
   describe "ActiveRecord" do
     before do
-      $stats = Oink::Log.new([:active_record_instances], $log)
+      $stats = Oink::Log.new($log)
     end
 
     it "stores the number of instantiated AR objects" do

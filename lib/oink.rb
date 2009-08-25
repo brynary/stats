@@ -1,18 +1,34 @@
-require "benchmark"
-
-require "oink/middleware"
-require "oink/memory_usage"
-require "oink/measure"
-require "oink/broadcaster"
-require "oink/rails/sql_extensions"
-require "oink/rails/active_record_extensions"
-require "oink/rails/cache_extensions"
-require "oink/log"
-
 module Oink
+  autoload :Formatter, "oink/formatter"
+  autoload :Log, "oink/log"
+  autoload :MethodTracker, "oink/method_tracker"
+  autoload :Metrics, "oink/metrics"
+  autoload :Middleware, "oink/middleware"
 
-  def self.broadcaster
-    Broadcaster.new(active_logs)
+  def self.measure(name, &block)
+    result = nil
+
+    tms = Benchmark.measure do
+      result = block.call
+    end
+
+    metrics(name).each { |metric| metric.add_time(tms) }
+    return result
+  end
+
+  def self.incr(name)
+    metrics(name).each(&:incr)
+  end
+
+  def self.metrics(name)
+    active_logs.map { |log| log.metric(name) }.compact
+  end
+
+  def self.with_log(log)
+    active_logs.push(log)
+    result = yield
+    active_logs.pop
+    return result
   end
 
   def self.active_logs
