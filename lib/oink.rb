@@ -1,9 +1,11 @@
 module Oink
+  autoload :DummyLog, "oink/dummy_log"
   autoload :Formatter, "oink/formatter"
   autoload :Log, "oink/log"
   autoload :MethodTracker, "oink/method_tracker"
   autoload :Metrics, "oink/metrics"
   autoload :Middleware, "oink/middleware"
+  autoload :RackLog, "oink/rack_log"
 
   def self.measure(name, &block)
     result = nil

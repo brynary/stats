@@ -5,9 +5,13 @@ module Oink
 
     def initialize(logger, extra_metadata = [])
       @logger = logger
-      @metadata = %w[transaction date time] + extra_metadata
+      @metadata = default_metadata + extra_metadata
       Metrics::Extensions.add_to(self)
       write_headers
+    end
+
+    def default_metadata
+      %w[transaction date time]
     end
 
     def write_headers
