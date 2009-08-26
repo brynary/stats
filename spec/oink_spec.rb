@@ -70,6 +70,13 @@ describe Oink do
       end
     end
 
+    it "returns the value from the transaction block" do
+      result = $stats.transaction do
+        "Foo"
+      end
+      result.should == "Foo"
+    end
+
     it "stores additional provided integer values" do
       $stats.transaction do
         $stats[:custom_field] = 10
